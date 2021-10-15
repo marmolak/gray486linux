@@ -250,6 +250,8 @@ static noinstr bool handle_bug(struct pt_regs *regs)
 DEFINE_IDTENTRY_RAW(exc_invalid_op)
 {
 	irqentry_state_t state;
+	unsigned long reg_ip;
+	unsigned long insts;
 
 	/*
 	 * We use UD2 as a short encoding for 'CALL __WARN', as such
@@ -260,6 +262,20 @@ DEFINE_IDTENTRY_RAW(exc_invalid_op)
 		return;
 
 	state = irqentry_enter(regs);
+
+#ifdef CONFIG_M486
+	reg_ip = uprobe_get_trap_addr(regs);
+	if (get_user(insts, (unsigned long __user *)reg_ip) == -EFAULT)
+	{
+		printk("Try to skip instruction: failed to obtain instructions from userspace.");
+	} else if (insts == 0xfb1e0ff3) {
+		/* Handle: f3 0f 1e fb - endbr32 */
+		instruction_pointer_set(regs, reg_ip + 4);
+		irqentry_exit(regs, state);
+		return;
+	}
+#endif
+
 	instrumentation_begin();
 	handle_invalid_op(regs);
 	instrumentation_end();
