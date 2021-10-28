@@ -20,9 +20,7 @@ Fedora 34 (optionally with Nix)
 **11.** Prepare in `gray486/bin` (Nix way)
 ------------------------------------------
 
-1. Install Nix
-
-https://nixos.org/manual/nix/stable/#sect-multi-user-installation
+1. [Install Nix](https://nixos.org/manual/nix/stable/#sect-multi-user-installation)
 
 2. Change directory to `src/build-env-with-nix`.
 
