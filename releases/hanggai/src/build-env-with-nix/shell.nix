@@ -21,6 +21,7 @@ in (overrideCC stdenv gccNoCetWrap).mkDerivation
 	gnumake
 	flex
 	bison
+	rsync
     ];
 
     shellHook = ''
