@@ -3,7 +3,7 @@ How to build gray486 linux
 ==========================
 
 Tested build environment:
-Fedora 34
+Fedora 34 (optionally with Nix)
 
 
 **10.** Prepare in `gray486/bin`
@@ -15,7 +15,20 @@ Fedora 34
 
 `/usr/bin/i386-ar` is just link to `/usr/bin/ar` :/
 
-**11.** Get num of cpus
+**OR**
+
+**11.** Prepare in `gray486/bin` (Nix way)
+------------------------------------------
+
+1. Install Nix
+
+https://nixos.org/manual/nix/stable/#sect-multi-user-installation
+
+2. Change directory to `src/build-env-with-nix`.
+
+3. Run `nix-shell --pure` ideally in screen/tmux if you are remotely connected. This will take some time. gcc needs to be rebuild with CET disabled.
+
+**19.** Get num of cpus
 -----------------------
 
 `export GR_CPUS=$(nproc --all)`
