@@ -18,14 +18,17 @@ in (overrideCC stdenv gccNoCetWrap).mkDerivation
     buildInputs = [
         ncurses
         ncurses.dev
+        pkg-config
 	gnumake
 	flex
 	bison
 	rsync
+        less
     ];
 
     shellHook = ''
-	export CFLAGS="-m32 -march=i486 -mtune=i486 -fcf-protection=none -fno-stack-protector -fomit-frame-pointer -mno-mmx -mno-sse -fno-pic"
+	export CFLAGS="-m32 -march=i486 -mtune=i486 -fcf-protection=none -fno-stack-protector -fomit-frame-pointer -mno-mmx -mno-sse -fno-pic -Os"
 	export CC="gcc"
+	cd ..
     '';
 }
