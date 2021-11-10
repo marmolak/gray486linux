@@ -1,0 +1,69 @@
+From ca260123cec4b896a12c9bb4a48a64c385420107 Mon Sep 17 00:00:00 2001
+From: Robin Hack <hack.robin@gmail.com>
+Date: Fri, 15 Oct 2021 14:08:46 +0200
+Subject: [PATCH] WIP: patch kernel to skip endbr32 instruction on real i486.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+This is stupid patch which just hacks invalid instruction
+operand trap code to skip endbr32 instruction.
+
+endbr32 is part of Intel’s Control-flow Enforcement Technology and
+older processors should handle this instruction (4 bytes) as a nop.
+However, it's true for Pentium Pro and higher. But i486s and original
+Pentiums are not able to handle this as a multi nop and just ends in
+invalid instruction operand trap, which sends SIGILL to process.
+
+GCC, even when -fcf-protection=none is used, when GCC itself is
+compiled without --disable-cet, have build-in functions "polluted"
+with endbr32 (for example: some floating point functions like:
+__mulxc3, __moddi3, __divdi3, __divmoddi4, __udivdi3) which then
+later gets into musl libc library so busybox going to die in pain.
+
+There is nice and clean solution: compile GCC without CET support
+but I'm not able to do it now (cos I'm stupid).
+
+PS: qemu with cpu set to i486 just works, so it's not
+true emulation of i486 CPU.
+---
+ .../src/linux-5.14.12/arch/x86/kernel/traps.c    | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
+
+diff --git a/releases/hanggai/src/linux-5.14.12/arch/x86/kernel/traps.c b/releases/hanggai/src/linux-5.14.12/arch/x86/kernel/traps.c
+index a58800973..2c32a5fa8 100644
+--- a/releases/hanggai/src/linux-5.14.12/arch/x86/kernel/traps.c
++++ b/releases/hanggai/src/linux-5.14.12/arch/x86/kernel/traps.c
+@@ -250,6 +250,8 @@ static noinstr bool handle_bug(struct pt_regs *regs)
+ DEFINE_IDTENTRY_RAW(exc_invalid_op)
+ {
+ 	irqentry_state_t state;
++	unsigned long reg_ip;
++	unsigned long insts;
+ 
+ 	/*
+ 	 * We use UD2 as a short encoding for 'CALL __WARN', as such
+@@ -260,6 +262,20 @@ DEFINE_IDTENTRY_RAW(exc_invalid_op)
+ 		return;
+ 
+ 	state = irqentry_enter(regs);
++
++#ifdef CONFIG_M486
++	reg_ip = uprobe_get_trap_addr(regs);
++	if (get_user(insts, (unsigned long __user *)reg_ip) == -EFAULT)
++	{
++		printk("Try to skip instruction: failed to obtain instructions from userspace.");
++	} else if (insts == 0xfb1e0ff3) {
++		/* Handle: f3 0f 1e fb - endbr32 */
++		instruction_pointer_set(regs, reg_ip + 4);
++		irqentry_exit(regs, state);
++		return;
++	}
++#endif
++
+ 	instrumentation_begin();
+ 	handle_invalid_op(regs);
+ 	instrumentation_end();
+-- 
+2.33.1
+
