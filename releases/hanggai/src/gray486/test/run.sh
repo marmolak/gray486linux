@@ -1,3 +1,6 @@
 #!/bin/bash
 
-qemu-system-i386 -cpu 486 -m 24 --kernel arch/x86/boot/bzImage -nographic -append "console=ttyS0" -serial mon:stdio
+#DEBUG="-s -S"
+MEM="13m"
+
+qemu-system-i386 -M microvm $DEBUG -cpu 486 -m "${MEM}" --kernel arch/x86/boot/bzImage -nographic -append "console=ttyS0" -serial mon:stdio
