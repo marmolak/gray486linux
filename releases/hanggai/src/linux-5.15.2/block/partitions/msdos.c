@@ -566,7 +566,7 @@ static void parse_minix(struct parsed_partitions *state,
 
 #define DM_MAGIC_SHIFT 63
 
-/* Cose is basically same as in msdos_partition() function. Real partition is
+/* Code is basically same as in msdos_partition() function. Real partition is
  * shifted 63 sectors forward by DM.
  * Limitatons: Only primary partitions are supported for now.
  * Used by & coded for: gray486 linux.
