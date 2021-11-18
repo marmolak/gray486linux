@@ -1,0 +1,105 @@
+From efd65782bef0be2464c1456b2907b33a6b1fa8ea Mon Sep 17 00:00:00 2001
+From: Robin Hack <hack.robin@gmail.com>
+Date: Tue, 16 Nov 2021 21:30:26 +0100
+Subject: [PATCH] WIP: Allow mouting of Ontrack Disk Manager formatted disks.
+
+Still work in progress and little buggy because some shifts needs to be
+hidden on different layer?
+---
+ .../src/linux-5.15.2/block/partitions/msdos.c | 58 ++++++++++++++++++-
+ 1 file changed, 56 insertions(+), 2 deletions(-)
+
+diff --git a/releases/hanggai/src/linux-5.15.2/block/partitions/msdos.c b/releases/hanggai/src/linux-5.15.2/block/partitions/msdos.c
+index b5d5c229c..a13972bc5 100644
+--- a/releases/hanggai/src/linux-5.15.2/block/partitions/msdos.c
++++ b/releases/hanggai/src/linux-5.15.2/block/partitions/msdos.c
+@@ -564,10 +564,60 @@ static void parse_minix(struct parsed_partitions *state,
+ #endif /* CONFIG_MINIX_SUBPARTITION */
+ }
+ 
++#define DM_MAGIC_SHIFT 63
++
++/* Cose is basically same as in msdos_partition() function. Real partition is
++ * shifted 63 sectors forward by DM.
++ * Limitatons: Only primary partitions are supported for now.
++ * Used by & coded for: gray486 linux.
++ */
++static void parse_dm6_x86(struct parsed_partitions *state,
++			      sector_t offset, sector_t size, int origin)
++{
++	sector_t sector_size;
++	Sector sect;
++	unsigned char *data;
++	struct msdos_partition *p;
++	int slot;
++	u32 disksig;
++
++	printk("EXPERIMENTAL: Ontrack formatted disk detected."
++		" Using partition table at offset 63.\n");
++	sector_size = queue_logical_block_size(state->disk->queue) / 512;
++	data = read_part_sector(state, DM_MAGIC_SHIFT, &sect);
++	if (!data)
++		return;
++
++	if (!msdos_magic_present(data + 510)) {
++		put_dev_sector(sect);
++		return;
++	}
++
++	p = (struct msdos_partition *) (data + 0x1be);
++	disksig = le32_to_cpup((__le32 *)(data + 0x1b8));
++
++	state->next = 5;
++	for (slot = 1 ; slot <= 4 ; slot++, p++) {
++		/* We are shifted by 63 sectors because DM. */
++		sector_t start = (start_sect(p) + DM_MAGIC_SHIFT) * sector_size;
++		sector_t size = nr_sects(p) * sector_size;
++
++		if (!size)
++			continue;
++		put_partition(state, slot, start, size);
++		set_info(state, slot, disksig);
++	}
++
++	strlcat(state->pp_buf, " [DMP]\n", PAGE_SIZE);
++
++	put_dev_sector(sect);
++}
++
+ static struct {
+ 	unsigned char id;
+ 	void (*parse)(struct parsed_partitions *, sector_t, sector_t, int);
+ } subtypes[] = {
++	{DM6_PARTITION, parse_dm6_x86},
+ 	{FREEBSD_PARTITION, parse_freebsd},
+ 	{NETBSD_PARTITION, parse_netbsd},
+ 	{OPENBSD_PARTITION, parse_openbsd},
+@@ -578,6 +628,7 @@ static struct {
+ 	{0, NULL},
+ };
+ 
++
+ int msdos_partition(struct parsed_partitions *state)
+ {
+ 	sector_t sector_size;
+@@ -683,8 +734,10 @@ int msdos_partition(struct parsed_partitions *state)
+ 			strlcat(state->pp_buf, " >", PAGE_SIZE);
+ 			continue;
+ 		}
+-		put_partition(state, slot, start, size);
+-		set_info(state, slot, disksig);
++		if (p->sys_ind != DM6_PARTITION) {
++			put_partition(state, slot, start, size);
++			set_info(state, slot, disksig);
++		}
+ 		if (p->sys_ind == LINUX_RAID_PARTITION)
+ 			state->parts[slot].flags = ADDPART_FLAG_RAID;
+ 		if (p->sys_ind == DM6_PARTITION)
+@@ -715,3 +768,4 @@ int msdos_partition(struct parsed_partitions *state)
+ 	put_dev_sector(sect);
+ 	return 1;
+ }
++
+-- 
+2.33.1
+
