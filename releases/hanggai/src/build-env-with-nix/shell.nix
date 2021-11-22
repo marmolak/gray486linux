@@ -30,5 +30,16 @@ in (overrideCC stdenv gccNoCetWrap).mkDerivation
 	export CFLAGS="-m32 -march=i486 -mtune=i486 -fcf-protection=none -fno-stack-protector -fomit-frame-pointer -mno-mmx -mno-sse -fno-pic -Os"
 	export CC="gcc"
 	cd ..
+
+	# set strip and ar
+	mkdir -p ./gray486/bin/
+	pushd ./gray486/bin/ &> /dev/null
+	rm -rf ./musl-strip
+	rm -rf ./musl-ar
+
+	ln -s "$(which strip)" musl-strip
+	ln -s "$(which ar)" musl-ar
+
+	popd &> /dev/null
     '';
 }
