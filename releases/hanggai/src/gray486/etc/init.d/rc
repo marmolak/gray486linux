@@ -1,8 +1,10 @@
 #!/bin/sh
 
-mount -t proc p /proc
+/sbin/ifconfig lo up
 
-cat << "EOF"
+/bin/mount -t proc p /proc
+
+/bin/cat << "EOF"
   _______ .______           ___   ____    ____  _  _      ___      __   
  /  _____||   _  \         /   \  \   \  /   / | || |    / _ \    / /   
 |  |  __  |  |_)  |       /  ^  \  \   \/   /  | || |_  | (_) |  / /_   
