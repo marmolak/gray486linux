@@ -3,58 +3,66 @@ How to build gray486 linux
 ==========================
 
 Tested build environment:
-Fedora 34 (optionally with Nix)
+Fedora 35 with Nix installed.
 
+**10.** [Install Nix](https://nixos.org/manual/nix/stable/installation/installing-binary.html#multi-user-installation)
+----------------------------------------------------------------------------------------
 
-**10.** Prepare in `gray486/bin`
---------------------------------
-
-`lrwxrwxrwx. 1 rhack rhack 16 Oct  3 14:46 musl-ar -> /usr/bin/i386-ar`
-
-`lrwxrwxrwx. 1 rhack rhack 14 Oct  3 14:52 musl-strip -> /usr/bin/strip`
-
-`/usr/bin/i386-ar` is just link to `/usr/bin/ar` :/
-
-**OR**
-
-**11.** Prepare in `gray486/bin` (Nix way)
-------------------------------------------
-
-1. [Install Nix](https://nixos.org/manual/nix/stable/#sect-multi-user-installation)
-
-2. Change directory to `src/build-env-with-nix`.
-
-3. Run `nix-shell --pure` ideally in screen/tmux if you are remotely connected. This will take some time. gcc needs to be rebuild with CET disabled.
-
-**19.** Get num of cpus
+**20.** Get num of cpus
 -----------------------
+
+Nix-shell scripts take handle of it.
+
+If you don't want to use `nix-shell`, just type:
 
 `export GR_CPUS=$(nproc --all)`
 
-**20.** Install kernel headers
+**30.** Enter Nix build environment
+-----------------------------------
+
+1. Change directory to `src/build-env-with-nix`.
+
+2. Run `nix-shell`. Ideally in screen/tmux if you are connected remotely. This will take some time. gcc needs to be rebuild with CET disabled.
+
+**40.** Install kernel headers
 ------------------------------
 
 In kernel directory:
 
 `make headers_install ARCH=i386 INSTALL_HDR_PATH=../gray486`
 
-**30.** Compile musl
+**50.** Compile musl
 --------------------
 
-`LDEMULATION="elf_i386" CC="gcc" CFLAGS="-m32 -march=i386 -mtune=i486 -fcf-protection=none -fno-stack-protector -Wa,-mtune=generic32 -fomit-frame-pointer -fno-pic -mno-mmx -mno-sse" ./configure --target=i386 --prefix=../gray486/`
+`CFLAGS="$CFLAGS -I$(realpath "${PWD}/../gray486/include")" ./configure --target=i386 --prefix=$(realpath "${PWD}/../gray486/")`
 
-`LDEMULATION="elf_i386" CC="gcc" CFLAGS="-m32 -march=i386 -mtune=i486 -fcf-protection=none -fno-stack-protector -Wa,-mtune=generic32 -fomit-frame-pointer -fno-pic -mno-mmx -mno-sse" make -j"$GR_CPUS"`
+`make -j"$GR_CPUS"`
 
-`LDEMULATION="elf_i386" CC="gcc" CFLAGS="-m32 -march=i386 -mtune=i486 -fcf-protection=none -fno-stack-protector -Wa,-mtune=generic32 -fomit-frame-pointer -fno-pic -mno-mmx -mno-sse" make install`
+`make install`
 
-**40.** Compile busybox
+
+**60.** Compile busybox
 -----------------------
 
-`LDEMULATION="elf_i386" CFLAGS="-m32 -march=i386 -mtune=i486" make -j"$GR_CPUS"`
+(optional) `make menuconfig`
 
-`LDEMULATION="elf_i386" CFLAGS="-m32 -march=i386 -mtune=i486" make install`
+`make -j"$GR_CPUS"`
 
-**41.** Update `.config` in kernel directory
+`make install`
+
+**51.** (optional) Build dropbear SSH client (+~266 K)
+------------------------------------------------------
+
+`CC="$(realpath $PWD/../gray486/bin/musl-gcc)"  ./configure --enable-static --enable-bundled-libtom --disable-syslog  --disable-harden --disable-zlib --disable-shadow --disable-utmp --disable-utmpx --disable-wtmpx --disable-loginfunc --prefix="$(realpath $PWD/../gray486/_install/)"`
+
+`make -j"$GR_CPUS"`
+
+`strip dbclient`
+
+`cp dbclient ../gray486/_install/bin`
+
+
+**70.** Update `.config` in kernel directory
 --------------------------------------------
 
 There is mapping hidden in `.config` and you need to change it
@@ -68,17 +76,25 @@ Then you can do some other changes with:
 
 `make menuconfig`
 
-**50.** Compile kernel
+**80.** Compile kernel
 ----------------------
 
 `make -j"$GR_CPUS"`
 
-**60.** (optional - you need qemu installed) Test your build
+**90.** Leave nix-shell
+-----------------------
+
+`exit`
+
+
+**100.** (optional - you need qemu installed) Test your build
 ------------------------------------------------------------
 
 Test build with `test-build.sh` script inside kernel directory.
 
-**70.** Cleanup build
+**110.** Cleanup build
 ---------------------
 
 `git clean -f -d -X`
+
+`git reset --hard master`
