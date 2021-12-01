@@ -14,9 +14,9 @@ Current release is: [hanggai](https://github.com/marmolak/gray486linux/tree/mast
 
 Why Hanggai? [Because :)](https://www.youtube.com/watch?v=IGVD6hHnKjU).
 
-[Hangaii build instructions](https://github.com/marmolak/gray486linux/tree/master/releases/hanggai/src#readme)
+[Hanggai build instructions](https://github.com/marmolak/gray486linux/tree/master/releases/hanggai/src#readme)
 
-Do you have i386 machine with at least 7808KB RAM? Take a look at [gray386linux](https://github.com/marmolak/gray386linux)
-which is still under development. But it's bootable to busybox userspace now.
+Do you have i386 machine with at least 8 MB RAM? Take a look at [gray386linux](https://github.com/marmolak/gray386linux).
+
 
 
