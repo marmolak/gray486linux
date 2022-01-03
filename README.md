@@ -14,6 +14,8 @@ Current release is: [hanggai](https://github.com/marmolak/gray486linux/tree/mast
 
 Why Hanggai? [Because :)](https://www.youtube.com/watch?v=IGVD6hHnKjU).
 
+Binary build? [Here!](https://github.com/marmolak/gray486linux/blob/master/releases/hanggai/bin/bzImage?raw=true)
+
 [Hanggai build instructions](https://github.com/marmolak/gray486linux/tree/master/releases/hanggai/src#readme)
 
 Do you have i386 machine with at least 8 MB RAM? Take a look at [gray386linux](https://github.com/marmolak/gray386linux).
