@@ -22,6 +22,7 @@ in (overrideCC stdenv gccNoCetWrap).mkDerivation
 	gnumake
 	flex
 	bison
+	which
 	rsync
         less
     ];
