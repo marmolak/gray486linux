@@ -23,6 +23,7 @@ in (overrideCC stdenv gccNoCetWrap).mkDerivation
 	flex
 	bison
 	which
+	autoconf
 	rsync
         less
     ];
