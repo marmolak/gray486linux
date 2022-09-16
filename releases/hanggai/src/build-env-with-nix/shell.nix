@@ -26,6 +26,7 @@ in (overrideCC stdenv gccNoCetWrap).mkDerivation
 	autoconf
 	rsync
         less
+	bc
     ];
 
     shellHook = ''
