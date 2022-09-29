@@ -1,49 +1,50 @@
-with import <nixpkgs> {};
+with import <nixpkgs> { };
 with pkgsi686Linux;
 
 let
-    gccNoCet = gcc12.cc.overrideAttrs (oldAttrs : rec { 
-        configureFlags = [ "--disable-cet" ] ++ oldAttrs.configureFlags;
-    });
- 
-    gccNoCetWrap = wrapCCWith rec {
-        cc = gccNoCet;
-    };   
+  gccNoCet = gcc12.cc.overrideAttrs (oldAttrs: rec {
+    configureFlags = [ "--disable-cet" ] ++ oldAttrs.configureFlags;
+  });
 
-in (overrideCC stdenv gccNoCetWrap).mkDerivation
+  gccNoCetWrap = wrapCCWith rec {
+    cc = gccNoCet;
+  };
+
+in
+(overrideCC stdenv gccNoCetWrap).mkDerivation
 {
-    name = "gccnocet";
-    hardeningDisable = [ "all" ];
+  name = "gccnocet";
+  hardeningDisable = [ "all" ];
 
-    buildInputs = [
-        ncurses
-        ncurses.dev
-        pkg-config
-	gnumake
-	flex
-	bison
-	which
-	autoconf
-	rsync
-        less
-	bc
-    ];
+  buildInputs = [
+    ncurses
+    ncurses.dev
+    pkg-config
+    gnumake
+    flex
+    bison
+    which
+    autoconf
+    rsync
+    less
+    bc
+  ];
 
-    shellHook = ''
-	export CFLAGS="-m32 -march=i486 -mtune=i486 -fcf-protection=none -fno-stack-protector -fomit-frame-pointer -mno-mmx -mno-sse -fno-pic -Os"
-	export CC="gcc"
-	export GR_CPUS=$(nproc --all)
-	cd ..
+  shellHook = ''
+    export CFLAGS="-m32 -march=i486 -mtune=i486 -fcf-protection=none -fno-stack-protector -fomit-frame-pointer -mno-mmx -mno-sse -fno-pic -Os"
+    export CC="gcc"
+    export GR_CPUS=$(nproc --all)
+    cd ..
 
-	# set strip and ar
-	mkdir -p ./gray486/bin/
-	pushd ./gray486/bin/ &> /dev/null
-	rm -rf ./musl-strip
-	rm -rf ./musl-ar
+    # set strip and ar
+    mkdir -p ./gray486/bin/
+    pushd ./gray486/bin/ &> /dev/null
+    rm -rf ./musl-strip
+    rm -rf ./musl-ar
 
-	ln -s "$(which strip)" musl-strip
-	ln -s "$(which ar)" musl-ar
+    ln -s "$(which strip)" musl-strip
+    ln -s "$(which ar)" musl-ar
 
-	popd &> /dev/null
-    '';
+    popd &> /dev/null
+  '';
 }
