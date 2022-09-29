@@ -2,8 +2,8 @@
 
 set -e
 
-declare -r KERNEL_VERSION="linux-5.19"
-declare -a -r USERSPACE=("musl-1.2.2" "busybox-1.34.1" "dropbear-2020.81")
+. ./lib/userspace.sh
+. ./lib/kernel.sh
 
 # Install kernel headers
 pushd ./build-env-with-nix/
