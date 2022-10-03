@@ -8,7 +8,7 @@
 Linux for i486 machines
 ```
 
-**Custom build Linux distribution for netbooted i486 machine(s).**
+Gray486linux is single user, source based (but binary build is provided) Linux distribution with tiny but current user space (`busybox` + `musl`). Main target is a real i486 net-booted machines with at least 8 MB RAM (should work even with 4 MB RAM - and it should work when net-boot is out of a game).
 
 Current release is: [hanggai](https://github.com/marmolak/gray486linux/tree/master/releases/hanggai/)
 
@@ -19,6 +19,3 @@ Binary build? [Here!](https://github.com/marmolak/gray486linux/blob/master/relea
 [Hanggai build instructions](https://github.com/marmolak/gray486linux/tree/master/releases/hanggai/src#readme)
 
 Do you have i386 machine with at least 8 MB RAM? Take a look at [gray386linux](https://github.com/marmolak/gray386linux).
-
-
-
