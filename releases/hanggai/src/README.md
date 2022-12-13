@@ -2,8 +2,10 @@
 How to build gray486 linux
 ==========================
 
-Tested build environment:
-Fedora 35 with Nix installed.
+Tested build environments:
+
+- Fedora 35 with Nix installed.
+- NixOS 22.11.
 
 **10.** [Install Nix](https://nixos.org/manual/nix/stable/installation/installing-binary.html#multi-user-installation)
 ----------------------------------------------------------------------------------------
