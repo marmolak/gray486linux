@@ -28,6 +28,7 @@ in
     rsync
     less
     bc
+    nettools
   ];
 
   shellHook = ''
