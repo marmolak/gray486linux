@@ -1,1 +1,0 @@
-../gray486/test/run.sh
