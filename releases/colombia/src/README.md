@@ -4,7 +4,7 @@ How to build gray486 linux
 
 Tested build environments:
 
-- Fedora 41 with Nix installed (you need to have nix.conf configured, so take a look at fedora dir).
+- Fedora 41 with Nix installed (you need to have nix.conf configured, so take a look into fedora dir for my nix.conf).
 - NixOS 24.11.
 - Docker/podman container (for more info, check `docker` directory).
 
