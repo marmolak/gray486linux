@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-declare -r KERNEL_VERSION="linux-6.18"
+declare -r KERNEL_VERSION="linux-6.19"
