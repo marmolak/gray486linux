@@ -1,0 +1,69 @@
+.Dd February 1, 2023
+.Dt DROPBEARCONVERT 1
+.Os
+.Sh NAME
+.Nm dropbearconvert
+.Nd convert between Dropbear and OpenSSH private key formats
+.Sh SYNOPSIS
+.Nm
+.Ar input_type
+.Ar output_type
+.Ar input_file
+.Ar output_file
+.Sh DESCRIPTION
+Dropbear
+and
+OpenSSH
+SSH implementations have different private key formats.
+.Nm dropbearconvert
+can convert between the two.
+.Pp
+Dropbear uses the same SSH public key format as OpenSSH, it can be extracted
+from a private key by using
+.Nm dropbearkey
+.Fl y
+.Pp
+Encrypted private keys are not supported, use
+.Xr ssh-keygen 1
+to decrypt them
+first.
+.Sh ARGUMENTS
+.Bl -tag -width Ds
+.It Ar input_type
+Either
+.Cm dropbear
+or
+.Cm openssh
+.It Ar output_type
+Either
+.Cm dropbear
+or
+.Cm openssh
+.It Ar input_file
+An existing Dropbear or OpenSSH private key file
+.It Ar output_file
+The path to write the converted private key file. For client authentication
+.Pa ~/.ssh/id_dropbear
+is loaded by default
+.El
+.Sh SUPPORTED FORMATS
+.Nm dropbearconvert
+can read OpenSSH format files, and older PEM format files
+.Po
+.Nm ssh-keygen
+.Fl m Ar PEM
+.Pc .
+.Nm dropbearconvert
+will write OpenSSH format files, usable with OpenSSH 6.5 and later.
+Reading OpenSSH format DSS files or PKCS8 files is not currently supported.
+.Sh EXAMPLES
+.Bd -literal -offset indent
+# dropbearconvert openssh dropbear ~/.ssh/id_rsa ~/.ssh/id_dropbear
+.Ed
+.Sh SEE ALSO
+.Xr dropbearkey 1 ,
+.Xr ssh-keygen 1
+.Pp
+.Lk https://matt.ucc.asn.au/dropbear/dropbear.html
+.Sh AUTHORS
+.An Matt Johnston Aq Mt matt@ucc.asn.au .
